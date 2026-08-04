@@ -14,6 +14,10 @@ import { generalLimiter, sensitiveLimiter } from "./middleware/rateLimit";
 import { errorHandler, notFoundHandler } from "./middleware/error";
 import { healthRouter } from "./routes/health";
 import { authRouter } from "./routes/auth";
+import { portalRouter } from "./routes/portal";
+import { dashboardRouter } from "./routes/dashboard";
+import { reportsRouter } from "./routes/reports";
+import { resourcesRouter } from "./routes/index";
 
 export function createApp(): Express {
   const app = express();
@@ -42,6 +46,12 @@ export function createApp(): Express {
 
   app.use("/api", healthRouter);
   app.use("/api", authRouter);
+  // Mounted before the generic resource routers so the enriched
+  // GET /students/:id wins over the collection handler.
+  app.use("/api", portalRouter);
+  app.use("/api", dashboardRouter);
+  app.use("/api", reportsRouter);
+  app.use("/api", resourcesRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
