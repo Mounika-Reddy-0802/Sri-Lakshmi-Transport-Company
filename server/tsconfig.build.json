@@ -1,0 +1,6 @@
+// Emit config: the same rules as tsconfig.json, minus the test files so they
+// never land in dist/. `npm run typecheck` still checks them.
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}
