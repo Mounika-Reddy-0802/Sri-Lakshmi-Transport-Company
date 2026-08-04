@@ -1,9 +1,11 @@
 "use client";
+// Charts take their data as props. Rendering is unchanged from the mock-data
+// version — only the source moved to the API.
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar, PieChart, Pie, Cell,
 } from "recharts";
-import { revenueTrend, routeRevenue, occupancy } from "@/lib/mock-data";
+import type { OccupancySlice, RouteRevenue, TrendPoint } from "@/lib/api";
 
 const inr = (n: number) => `₹${(n / 100000).toFixed(1)}L`;
 const NAVY = "#2A2E3A";
@@ -17,11 +19,11 @@ const tip = {
   },
 };
 
-export function RevenueChart() {
+export function RevenueChart({ data }: { data: TrendPoint[] }) {
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer>
-        <AreaChart data={revenueTrend} margin={{ top: 10, right: 8, left: -10, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 10, right: 8, left: -10, bottom: 0 }}>
           <defs>
             <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={NAVY} stopOpacity={0.18} />
@@ -40,11 +42,11 @@ export function RevenueChart() {
   );
 }
 
-export function RouteBarChart() {
+export function RouteBarChart({ data }: { data: RouteRevenue[] }) {
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer>
-        <BarChart data={routeRevenue} layout="vertical" margin={{ top: 4, right: 12, left: 10, bottom: 0 }}>
+        <BarChart data={data} layout="vertical" margin={{ top: 4, right: 12, left: 10, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" horizontal={false} />
           <XAxis type="number" tickFormatter={inr} tick={{ fontSize: 11, fill: GREY }} axisLine={false} tickLine={false} />
           <YAxis type="category" dataKey="route" width={130} tick={{ fontSize: 11, fill: GREY }} axisLine={false} tickLine={false} />
@@ -56,13 +58,13 @@ export function RouteBarChart() {
   );
 }
 
-export function OccupancyDonut() {
+export function OccupancyDonut({ data }: { data: OccupancySlice[] }) {
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer>
         <PieChart>
-          <Pie data={occupancy} dataKey="value" innerRadius={60} outerRadius={90} paddingAngle={2} startAngle={90} endAngle={-270}>
-            {occupancy.map((_, i) => <Cell key={i} fill={i === 0 ? NAVY : "#D7DCE2"} />)}
+          <Pie data={data} dataKey="value" innerRadius={60} outerRadius={90} paddingAngle={2} startAngle={90} endAngle={-270}>
+            {data.map((_, i) => <Cell key={i} fill={i === 0 ? NAVY : "#D7DCE2"} />)}
           </Pie>
           <Tooltip {...tip} formatter={(v: number) => `${v}%`} />
         </PieChart>
