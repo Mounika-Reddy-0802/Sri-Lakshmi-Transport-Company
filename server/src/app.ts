@@ -17,6 +17,7 @@ import { authRouter } from "./routes/auth";
 import { portalRouter } from "./routes/portal";
 import { dashboardRouter } from "./routes/dashboard";
 import { reportsRouter } from "./routes/reports";
+import { paymentsRouter } from "./routes/payments";
 import { resourcesRouter } from "./routes/index";
 
 export function createApp(): Express {
@@ -51,6 +52,7 @@ export function createApp(): Express {
   app.use("/api", portalRouter);
   app.use("/api", dashboardRouter);
   app.use("/api", reportsRouter);
+  app.use("/api", paymentsRouter);
   app.use("/api", resourcesRouter);
 
   app.use(notFoundHandler);

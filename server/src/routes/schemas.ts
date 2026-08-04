@@ -163,3 +163,17 @@ export const reminderUpdate = reminderCreate.partial();
 export const reportQuery = z.object({
   months: z.coerce.number().int().min(1).max(24).default(6),
 });
+
+// ----------------------------------------------------------------- payments
+
+export const paymentOrderBody = z.object({
+  invoiceId: objectIdSchema,
+});
+
+// Field names are Razorpay's, exactly as its checkout handler returns them.
+export const paymentVerifyBody = z.object({
+  invoiceId: objectIdSchema,
+  razorpay_order_id: z.string().trim().min(1),
+  razorpay_payment_id: z.string().trim().min(1),
+  razorpay_signature: z.string().trim().min(1),
+});
