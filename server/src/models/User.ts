@@ -13,6 +13,12 @@ export type UserDoc = {
   studentId?: Types.ObjectId;
   isActive: boolean;
   lastLoginAt?: Date;
+  /**
+   * Bumped on logout. Refresh tokens embed the value they were issued with, so
+   * incrementing it invalidates every outstanding refresh token for this user
+   * without needing a token store.
+   */
+  tokenVersion: number;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -29,6 +35,7 @@ const userSchema = new Schema<UserDoc>(
     studentId: { type: Schema.Types.ObjectId, ref: "Student" },
     isActive: { type: Boolean, default: true },
     lastLoginAt: { type: Date },
+    tokenVersion: { type: Number, default: 0 },
   },
   baseSchemaOptions,
 );
