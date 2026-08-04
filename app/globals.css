@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --text: #2A2E3A;
+  --muted: #5C6675;
+  --line: #E4E8EC;
+  --haze: #F4F6F8;
+}
+.dark {
+  --bg: #14171C;
+  --surface: #1A1E25;
+  --text: #ECEEF1;
+  --muted: #9AA3AE;
+  --line: rgba(255,255,255,0.09);
+  --haze: #1A1E25;
+}
+
+* { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  transition: background-color .35s ease, color .35s ease;
+}
+
+.surface { background: var(--surface); border: 1px solid var(--line); }
+.hairline { border-color: var(--line); }
+.text-muted2 { color: var(--muted); }
+.bg-haze { background: var(--haze); }
+
+/* Glass is used ONLY on the floating quote card — kept as a small accent. */
+.glass {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.7);
+}
+.dark .glass {
+  background: rgba(26,30,37,0.7);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Photo-ready slot: a designed frame the owner drops real photos into. */
+.photo-slot {
+  position: relative;
+  background:
+    radial-gradient(120% 120% at 80% 0%, rgba(31,95,146,0.12), transparent 60%),
+    linear-gradient(160deg, #2A2E3A 0%, #20242E 100%);
+  overflow: hidden;
+}
+.photo-slot::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 9px);
+}
+
+.display { letter-spacing: -0.025em; font-weight: 700; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  html { scroll-behavior: auto; }
+}
+
+::selection { background: #2A2E3A; color: #fff; }
+
+.route-line { stroke-dasharray: 5 9; animation: flow 3s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -28; } }
