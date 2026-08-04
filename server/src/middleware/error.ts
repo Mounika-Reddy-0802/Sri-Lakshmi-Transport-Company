@@ -11,6 +11,17 @@ export function notFoundHandler(req: Request, res: Response): void {
   res.status(404).json(errorBody("NOT_FOUND", `No route matches ${req.method} ${req.path}.`));
 }
 
+type DuplicateKeyError = { code: number; keyPattern?: Record<string, unknown> };
+
+function isDuplicateKeyError(error: unknown): error is DuplicateKeyError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === 11000
+  );
+}
+
 function isJsonSyntaxError(error: unknown): boolean {
   // express.json() rejects malformed bodies with a SyntaxError carrying a
   // `body` property and status 400.
@@ -67,6 +78,24 @@ export function errorHandler(
 
   if (error instanceof mongoose.Error.CastError) {
     res.status(400).json(errorBody("INVALID_ID", `'${String(error.value)}' is not a valid id.`));
+    return;
+  }
+
+  // Unique index violation — a duplicate regNumber, email, route code, or a
+  // second invoice for the same student and period.
+  if (isDuplicateKeyError(error)) {
+    const fields = Object.keys(error.keyPattern ?? {});
+    res
+      .status(409)
+      .json(
+        errorBody(
+          "DUPLICATE",
+          fields.length > 0
+            ? `A record with this ${fields.join(" + ")} already exists.`
+            : "A record with these details already exists.",
+          { fields },
+        ),
+      );
     return;
   }
 
