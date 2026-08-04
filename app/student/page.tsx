@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bus, MapPin, Clock, Phone, Download, CheckCircle2, X } from "lucide-react";
+import { Bus, MapPin, Clock, Phone, Download } from "lucide-react";
 import { Shell, Panel } from "@/components/dashboard/Shell";
+import { Checkout } from "@/components/dashboard/Checkout";
 import { ChartSkeleton, EmptyState, ErrorState, TableSkeleton } from "@/components/ui/States";
 import { api, type ListEnvelope, type StudentInvoice, type StudentProfile } from "@/lib/api";
 import { RequireRole, useAuth } from "@/lib/auth";
@@ -40,8 +41,9 @@ function StudentDashboardView() {
   const studentId = user?.studentId;
 
   const [plan, setPlan] = useState(plans[0]);
-  const [paying, setPaying] = useState(false);
-  const [paid, setPaid] = useState(false);
+  // Payments settle a specific invoice, so the checkout is opened against one
+  // rather than against a plan total.
+  const [checkoutInvoice, setCheckoutInvoice] = useState<StudentInvoice | null>(null);
 
   const profile = useQuery({
     queryKey: ["student", studentId],
@@ -58,6 +60,11 @@ function StudentDashboardView() {
   const p = profile.data;
   const monthly = p?.monthlyFee ?? 0;
   const total = monthly * plan.months;
+
+  // Oldest unsettled invoice — what the primary Pay button targets.
+  const nextDue = [...(invoices.data?.data ?? [])]
+    .filter((i) => i.status !== "paid")
+    .sort((a, b) => a.period.localeCompare(b.period))[0];
 
   return (
     <Shell role="Student / Parent" user={p?.name ?? user?.name ?? "Parent"} nav={nav}>
@@ -123,13 +130,24 @@ function StudentDashboardView() {
                     ))}
                   </div>
                   <div className="mt-4 flex items-center justify-between rounded-lg bg-steel/8 p-3">
-                    <span className="text-sm text-muted2">{plan.key} total</span>
+                    <span className="text-sm text-muted2">{plan.key} estimate</span>
                     <span className="display text-lg text-midnight dark:text-fog">₹{total.toLocaleString("en-IN")}</span>
                   </div>
-                  <button onClick={() => setPaying(true)} disabled={total === 0}
-                    className="mt-3 w-full rounded-full bg-midnight px-5 py-3 text-sm font-medium text-white transition hover:bg-steel disabled:opacity-50">
-                    Pay ₹{total.toLocaleString("en-IN")}
+
+                  <button
+                    onClick={() => nextDue && setCheckoutInvoice(nextDue)}
+                    disabled={!nextDue}
+                    className="mt-3 w-full rounded-full bg-midnight px-5 py-3 text-sm font-medium text-white transition hover:bg-steel disabled:opacity-50"
+                  >
+                    {nextDue
+                      ? `Pay ${nextDue.period} · ₹${nextDue.amount.toLocaleString("en-IN")}`
+                      : "Nothing due"}
                   </button>
+                  <p className="mt-2 text-center text-xs text-muted2">
+                    {nextDue
+                      ? "Fees are billed monthly — this settles your oldest unpaid invoice."
+                      : "All invoices are settled."}
+                  </p>
                 </>
               )}
             </Panel>
@@ -157,7 +175,18 @@ function StudentDashboardView() {
                           <td className="py-2.5 text-muted2">₹{inv.amount.toLocaleString("en-IN")}</td>
                           <td className="py-2.5"><span className={`rounded-full px-2.5 py-1 text-xs ${tone[inv.status] ?? ""}`}>{statusLabel[inv.status] ?? inv.status}</span></td>
                           <td className="py-2.5 text-muted2">{inv.date}</td>
-                          <td className="py-2.5">{inv.status === "paid" && <button className="inline-flex items-center gap-1 text-xs text-steel dark:text-mist"><Download size={13} /> Receipt</button>}</td>
+                          <td className="py-2.5">
+                            {inv.status === "paid" ? (
+                              <button className="inline-flex items-center gap-1 text-xs text-steel dark:text-mist"><Download size={13} /> Receipt</button>
+                            ) : (
+                              <button
+                                onClick={() => setCheckoutInvoice(inv)}
+                                className="rounded-full border hairline px-3 py-1 text-xs font-medium text-midnight transition hover:bg-slate/10 dark:text-fog"
+                              >
+                                Pay now
+                              </button>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -169,36 +198,12 @@ function StudentDashboardView() {
         </>
       )}
 
-      {paying && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-5" onClick={() => { setPaying(false); setPaid(false); }}>
-          <div className="w-full max-w-sm surface rounded-xl2 p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <span className="display text-midnight dark:text-fog">Razorpay (demo)</span>
-              <button onClick={() => { setPaying(false); setPaid(false); }} className="text-muted2"><X size={18} /></button>
-            </div>
-            {paid ? (
-              <div className="flex flex-col items-center py-8 text-center">
-                <CheckCircle2 className="text-steel dark:text-mist" size={42} />
-                <p className="display mt-3 text-lg text-midnight dark:text-fog">Payment successful</p>
-                <p className="mt-1 text-sm text-muted2">₹{total.toLocaleString("en-IN")} · {plan.key} · receipt generated.</p>
-                <p className="mt-3 text-xs text-muted2">Demo only — real Razorpay checkout arrives in the next phase.</p>
-              </div>
-            ) : (
-              <>
-                <p className="mt-4 text-sm text-muted2">Paying for {p?.name ?? "—"} · {plan.key}</p>
-                <div className="mt-2 display text-2xl text-midnight dark:text-fog">₹{total.toLocaleString("en-IN")}</div>
-                <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
-                  {["UPI", "Debit Card", "Credit Card", "Net Banking"].map((m) => (
-                    <span key={m} className="rounded-lg border hairline px-3 py-2 text-center text-muted2">{m}</span>
-                  ))}
-                </div>
-                <button onClick={() => setPaid(true)} className="mt-5 w-full rounded-full bg-midnight px-5 py-3 text-sm font-medium text-white hover:bg-steel">
-                  Pay now
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+      {checkoutInvoice && (
+        <Checkout
+          invoice={checkoutInvoice}
+          studentName={p?.name ?? "Student"}
+          onClose={() => setCheckoutInvoice(null)}
+        />
       )}
     </Shell>
   );
