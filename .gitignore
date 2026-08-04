@@ -1,7 +1,10 @@
 node_modules
 .next
 out
+dist
+GIT_RULES.md
 .env*
+!.env.example
 *.log
 .DS_Store
 *.tsbuildinfo
