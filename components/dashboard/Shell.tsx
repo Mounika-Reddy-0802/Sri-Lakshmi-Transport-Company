@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
 import { Menu, X, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
+import { useLogout } from "@/lib/auth";
 
 export type NavItem = { label: string; active?: boolean };
 
@@ -11,6 +11,7 @@ export function Shell({
   role, user, nav, children,
 }: { role: string; user: string; nav: NavItem[]; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const logout = useLogout();
   return (
     <div className="min-h-screen bg-fog dark:bg-[#0f1820]">
       {/* Sidebar */}
@@ -30,9 +31,12 @@ export function Shell({
             </span>
           ))}
         </nav>
-        <Link href="/login" className="absolute bottom-5 left-5 right-5 inline-flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-muted2 hover:bg-slate/10">
+        <button
+          onClick={() => void logout()}
+          className="absolute bottom-5 left-5 right-5 inline-flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-muted2 hover:bg-slate/10"
+        >
           <LogOut size={16} /> Sign out
-        </Link>
+        </button>
       </aside>
 
       {open && <div className="fixed inset-0 z-30 bg-black/30 md:hidden" onClick={() => setOpen(false)} />}
