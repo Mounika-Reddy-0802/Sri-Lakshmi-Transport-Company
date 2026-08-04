@@ -50,7 +50,7 @@ export function Hero() {
           <div className="glass absolute -bottom-6 -left-4 w-60 rounded-xl2 p-5 shadow-glass sm:-left-8">
             <div className="text-xs font-semibold uppercase tracking-wide text-blue">Get started</div>
             <p className="mt-1.5 text-sm font-medium leading-snug text-navy dark:text-white">
-              Tell us your routes and headcount — we'll send a tailored quote.
+              Tell us your routes and headcount — we&apos;ll send a tailored quote.
             </p>
             <Button href="#contact" variant="cta" className="mt-4 w-full !py-2.5">Request a quote</Button>
           </div>
