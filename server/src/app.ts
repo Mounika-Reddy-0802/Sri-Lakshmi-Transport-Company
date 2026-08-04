@@ -7,11 +7,13 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import { env } from "./config";
 import { requestLogger } from "./middleware/logger";
 import { generalLimiter, sensitiveLimiter } from "./middleware/rateLimit";
 import { errorHandler, notFoundHandler } from "./middleware/error";
 import { healthRouter } from "./routes/health";
+import { authRouter } from "./routes/auth";
 
 export function createApp(): Express {
   const app = express();
@@ -29,6 +31,7 @@ export function createApp(): Express {
     }),
   );
   app.use(express.json({ limit: "1mb" }));
+  app.use(cookieParser());
   app.use(requestLogger);
 
   app.use("/api", generalLimiter);
@@ -38,6 +41,7 @@ export function createApp(): Express {
   app.use("/api/payments", sensitiveLimiter);
 
   app.use("/api", healthRouter);
+  app.use("/api", authRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
