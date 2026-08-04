@@ -20,6 +20,13 @@ import { reportsRouter } from "./routes/reports";
 import { paymentsRouter } from "./routes/payments";
 import { resourcesRouter } from "./routes/index";
 
+const stripTrailingSlash = (value: string): string => value.trim().replace(/\/+$/, "");
+
+/** CLIENT_ORIGIN may list several origins, comma separated. */
+const allowedOrigins = env.CLIENT_ORIGIN.split(",")
+  .map(stripTrailingSlash)
+  .filter((origin) => origin.length > 0);
+
 export function createApp(): Express {
   const app = express();
 
@@ -31,7 +38,18 @@ export function createApp(): Express {
   app.use(helmet());
   app.use(
     cors({
-      origin: env.CLIENT_ORIGIN.split(",").map((origin) => origin.trim()),
+      // Compared after stripping any trailing slash on both sides. A browser
+      // never sends one in the Origin header, but it is very easy to paste
+      // "https://app.example.com/" into a dashboard env var — and the mismatch
+      // then shows up only as a silent CORS failure in production.
+      origin: (origin, callback) => {
+        // No Origin header: same-origin navigations, curl, health checks.
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+        callback(null, allowedOrigins.includes(stripTrailingSlash(origin)));
+      },
       credentials: true,
     }),
   );
