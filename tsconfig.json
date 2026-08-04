@@ -17,5 +17,9 @@
     "paths": { "@/*": ["./*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  // `server` is a separate app with its own tsconfig and its own dependencies.
+  // Without this exclusion the "**/*.ts" glob pulls the Express source into the
+  // Next.js typecheck, which only works where server/node_modules happens to be
+  // installed — it passes locally and fails on a clean deploy.
+  "exclude": ["node_modules", "server"]
 }
