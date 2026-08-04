@@ -1,6 +1,6 @@
 import { Reveal } from "./Reveal";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { services } from "@/lib/mock-data";
+import { services } from "@/lib/content";
 
 export function Services() {
   return (

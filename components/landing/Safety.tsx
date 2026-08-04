@@ -2,7 +2,7 @@ import { Reveal } from "./Reveal";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PhotoSlot } from "@/components/ui/PhotoSlot";
 import { Check } from "lucide-react";
-import { safety, about } from "@/lib/mock-data";
+import { safety, about } from "@/lib/content";
 
 export function Safety() {
   return (

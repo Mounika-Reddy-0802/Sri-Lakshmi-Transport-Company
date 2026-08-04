@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Phone, ShieldCheck, Clock, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PhotoSlot } from "@/components/ui/PhotoSlot";
-import { company } from "@/lib/mock-data";
+import { company } from "@/lib/content";
 
 const trust = [
   { icon: BadgeCheck, label: "Licensed since 2020" },

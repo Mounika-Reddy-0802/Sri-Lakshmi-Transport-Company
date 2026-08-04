@@ -1,7 +1,7 @@
 import { Reveal } from "./Reveal";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PhotoSlot } from "@/components/ui/PhotoSlot";
-import { fleet } from "@/lib/mock-data";
+import { fleet } from "@/lib/content";
 
 export function Fleet() {
   return (

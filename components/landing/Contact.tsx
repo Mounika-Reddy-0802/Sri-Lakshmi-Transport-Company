@@ -4,7 +4,7 @@ import { Reveal } from "./Reveal";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Button } from "@/components/ui/Button";
 import { CheckCircle2, Mail, Phone, MapPin } from "lucide-react";
-import { company } from "@/lib/mock-data";
+import { company } from "@/lib/content";
 
 const fields = [
   { name: "name", label: "Name", type: "text" },

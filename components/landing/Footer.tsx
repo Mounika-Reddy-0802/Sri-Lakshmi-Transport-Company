@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
-import { company } from "@/lib/mock-data";
+import { company } from "@/lib/content";
 
 export function Footer() {
   return (

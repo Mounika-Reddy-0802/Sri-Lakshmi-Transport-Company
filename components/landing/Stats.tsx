@@ -1,6 +1,6 @@
 import { Counter } from "@/components/ui/Counter";
 import { Reveal } from "./Reveal";
-import { stats } from "@/lib/mock-data";
+import { stats } from "@/lib/content";
 
 export function Stats() {
   return (

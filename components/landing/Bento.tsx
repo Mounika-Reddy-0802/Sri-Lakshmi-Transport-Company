@@ -1,6 +1,6 @@
 import { Reveal } from "./Reveal";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { bento, clients } from "@/lib/mock-data";
+import { bento, clients } from "@/lib/content";
 
 const toneCls: Record<string, string> = {
   navy: "bg-navy text-white",
