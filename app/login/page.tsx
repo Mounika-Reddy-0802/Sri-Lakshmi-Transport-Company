@@ -1,17 +1,80 @@
 "use client";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ShieldCheck, Building2, GraduationCap, ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight, Building2, GraduationCap, Loader2, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
+import { ApiError } from "@/lib/api";
+import { HOME_FOR_ROLE, useAuth } from "@/lib/auth";
 
-const portals = [
-  { href: "/admin", icon: ShieldCheck, title: "Admin Portal", who: "SLTC Staff", desc: "Full control of fleet, organizations, finance and compliance." },
-  { href: "/organization", icon: Building2, title: "Organization Portal", who: "Schools & Corporates", desc: "Your buses, routes, students and billing in one place." },
-  { href: "/student", icon: GraduationCap, title: "Student / Parent Portal", who: "Families", desc: "Route, pickup, driver details and monthly fee payment." },
+// The seeded demo accounts. These exist only in the development database and
+// are here so the portals can be shown in one click; production seeds its own
+// users and this block is removed with the seed.
+const demoAccounts = [
+  {
+    icon: ShieldCheck,
+    title: "Admin Portal",
+    who: "SLTC Staff",
+    desc: "Full control of fleet, organizations, finance and compliance.",
+    email: "admin@sltc.co.in",
+  },
+  {
+    icon: Building2,
+    title: "Organization Portal",
+    who: "Schools & Corporates",
+    desc: "Your buses, routes, students and billing in one place.",
+    email: "transport@svkm.example.com",
+  },
+  {
+    icon: GraduationCap,
+    title: "Student / Parent Portal",
+    who: "Families",
+    desc: "Route, pickup, driver details and monthly fee payment.",
+    email: "parent.aarav@example.com",
+  },
 ];
 
+const DEMO_PASSWORD = "Sltc@12345";
+
 export default function LoginPage() {
+  const router = useRouter();
+  const { login, user, status } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  // Already signed in? Go straight to the right portal.
+  useEffect(() => {
+    if (status === "authenticated" && user) {
+      router.replace(HOME_FOR_ROLE[user.role]);
+    }
+  }, [status, user, router]);
+
+  async function signIn(withEmail: string, withPassword: string) {
+    setError(null);
+    setPending(true);
+    try {
+      const signedIn = await login(withEmail, withPassword);
+      router.replace(HOME_FOR_ROLE[signedIn.role]);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Could not reach the server. Is the API running on port 4000?",
+      );
+      setPending(false);
+    }
+  }
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    void signIn(email, password);
+  };
+
   return (
     <main className="min-h-screen bg-white px-5 py-10 dark:bg-[#15171D]">
       <div className="mx-auto flex max-w-5xl items-center justify-between">
@@ -21,32 +84,89 @@ export default function LoginPage() {
         <ThemeToggle />
       </div>
 
-      <div className="mx-auto mt-16 max-w-5xl text-center">
+      <div className="mx-auto mt-14 max-w-5xl text-center">
         <div className="mb-6 flex justify-center"><Logo size={52} /></div>
-        <h1 className="display text-4xl text-ink dark:text-white">Choose your portal</h1>
-        <p className="mt-3 text-muted2">Three roles, three dedicated dashboards. Pick one to open the demo.</p>
+        <h1 className="display text-4xl text-ink dark:text-white">Sign in</h1>
+        <p className="mt-3 text-muted2">One account, three portals — you land on the right one automatically.</p>
       </div>
 
-      <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-3">
-        {portals.map((p, i) => (
-          <motion.div key={p.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-            <Link href={p.href} className="group block h-full rounded-xl2 border border-line bg-white p-7 transition-all hover:-translate-y-1 hover:border-ink/30 dark:bg-[#1A1D24]">
-              <span className="grid h-12 w-12 place-items-center rounded-xl bg-haze text-ink dark:bg-white/10 dark:text-white">
-                <p.icon size={22} />
-              </span>
-              <div className="mt-5 text-xs uppercase tracking-[0.18em] text-muted2">{p.who}</div>
-              <h2 className="display mt-1 text-xl text-ink dark:text-white">{p.title}</h2>
-              <p className="mt-3 text-sm text-muted2">{p.desc}</p>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-ink dark:text-white">
-                Enter demo <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
-          </motion.div>
-        ))}
+      <form onSubmit={onSubmit} className="mx-auto mt-10 w-full max-w-sm">
+        <label htmlFor="email" className="block text-sm font-medium text-ink dark:text-white">
+          Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          autoComplete="username"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mt-1.5 w-full rounded-lg border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-steel focus:ring-2 focus:ring-steel/20 dark:bg-[#1A1D24] dark:text-white"
+          placeholder="you@company.com"
+        />
+
+        <label htmlFor="password" className="mt-4 block text-sm font-medium text-ink dark:text-white">
+          Password
+        </label>
+        <input
+          id="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="mt-1.5 w-full rounded-lg border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-steel focus:ring-2 focus:ring-steel/20 dark:bg-[#1A1D24] dark:text-white"
+          placeholder="••••••••"
+        />
+
+        {error && (
+          <p role="alert" className="mt-4 rounded-lg bg-slate/10 px-4 py-3 text-sm text-midnight dark:text-fog">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={pending}
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-midnight px-5 py-3 text-sm font-medium text-white transition hover:bg-steel disabled:opacity-60"
+        >
+          {pending && <Loader2 size={16} className="animate-spin" />}
+          {pending ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
+
+      <div className="mx-auto mt-14 max-w-5xl">
+        <p className="text-center text-xs uppercase tracking-[0.18em] text-muted2">
+          Or open a demo account
+        </p>
+
+        <div className="mt-6 grid gap-5 md:grid-cols-3">
+          {demoAccounts.map((account, i) => (
+            <motion.div key={account.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => void signIn(account.email, DEMO_PASSWORD)}
+                className="group block h-full w-full rounded-xl2 border border-line bg-white p-7 text-left transition-all hover:-translate-y-1 hover:border-ink/30 disabled:opacity-60 dark:bg-[#1A1D24]"
+              >
+                <span className="grid h-12 w-12 place-items-center rounded-xl bg-haze text-ink dark:bg-white/10 dark:text-white">
+                  <account.icon size={22} />
+                </span>
+                <div className="mt-5 text-xs uppercase tracking-[0.18em] text-muted2">{account.who}</div>
+                <h2 className="display mt-1 text-xl text-ink dark:text-white">{account.title}</h2>
+                <p className="mt-3 text-sm text-muted2">{account.desc}</p>
+                <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-ink dark:text-white">
+                  Sign in as demo <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+                </span>
+              </button>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <p className="mx-auto mt-10 max-w-5xl text-center text-xs text-muted2">
-        Demo access — authentication is not wired up. In production each portal has its own JWT login and role-based permissions.
+        Authentication is real — JWT access tokens with an httpOnly refresh cookie, and every
+        request is scoped to the signed-in account&apos;s organization.
       </p>
     </main>
   );
