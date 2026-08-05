@@ -4,10 +4,38 @@ import { app } from "./app";
 import { env } from "./config";
 import { connectToDatabase, disconnectFromDatabase } from "./db";
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Connects with a short retry.
+ *
+ * The first `mongodb+srv` connection after the machine has been idle regularly
+ * loses the DNS SRV/TXT lookup and exceeds the driver's server-selection
+ * timeout, while an immediate second attempt succeeds in well under a second.
+ * Atlas reports this as "not whitelisted", which sends you hunting through the
+ * IP access list for a problem that is not there. Retrying removes the false
+ * alarm; a genuinely wrong URI or blocked IP still fails, just three times.
+ */
+async function connectWithRetry(attempts = 3): Promise<void> {
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      await connectToDatabase();
+      return;
+    } catch (error) {
+      if (attempt === attempts) throw error;
+      const waitMs = attempt * 2000;
+      console.warn(
+        `MongoDB connection attempt ${attempt}/${attempts} failed; retrying in ${waitMs / 1000}s…`,
+      );
+      await sleep(waitMs);
+    }
+  }
+}
+
 async function main(): Promise<void> {
   // Connect up front so a bad MONGODB_URI fails at boot instead of on the first
   // request.
-  await connectToDatabase();
+  await connectWithRetry();
   console.log("connected to MongoDB");
 
   const server = app.listen(env.PORT, () => {
