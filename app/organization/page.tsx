@@ -7,11 +7,6 @@ import { ChartSkeleton, EmptyState, ErrorState, StatCardSkeleton, TableSkeleton 
 import { api, type OrgDashboard } from "@/lib/api";
 import { RequireRole, useAuth } from "@/lib/auth";
 
-const nav = [
-  { label: "Overview", active: true }, { label: "Buses" }, { label: "Routes" },
-  { label: "Students" }, { label: "Invoices" }, { label: "Documents" }, { label: "Reports" },
-];
-
 const tone: Record<string, string> = {
   Paid: "bg-steel/15 text-steel dark:text-mist",
   Pending: "bg-slate/15 text-slate",
@@ -40,7 +35,7 @@ function OrganizationDashboardView() {
   const orgName = d?.organization.name ?? user?.name ?? "Your organization";
 
   return (
-    <Shell role="Organization" user={orgName} nav={nav}>
+    <Shell role="org" user={orgName}>
       <h1 className="display text-2xl text-midnight dark:text-fog">{orgName}</h1>
       <p className="mt-1 text-sm text-muted2">Your transport, routes and billing. You only see your own data.</p>
 

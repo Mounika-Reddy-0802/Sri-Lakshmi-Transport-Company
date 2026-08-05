@@ -8,11 +8,6 @@ import { ChartSkeleton, EmptyState, ErrorState, TableSkeleton } from "@/componen
 import { api, type ListEnvelope, type StudentInvoice, type StudentProfile } from "@/lib/api";
 import { RequireRole, useAuth } from "@/lib/auth";
 
-const nav = [
-  { label: "My Transport", active: true }, { label: "Fee & Payments" },
-  { label: "Receipts" }, { label: "Notifications" },
-];
-
 const plans = [
   { key: "Monthly", months: 1 },
   { key: "Quarterly", months: 3 },
@@ -67,7 +62,7 @@ function StudentDashboardView() {
     .sort((a, b) => a.period.localeCompare(b.period))[0];
 
   return (
-    <Shell role="Student / Parent" user={p?.name ?? user?.name ?? "Parent"} nav={nav}>
+    <Shell role="student" user={p?.name ?? user?.name ?? "Parent"}>
       <h1 className="display text-2xl text-midnight dark:text-fog">
         Hello, {(p?.name ?? user?.name ?? "there").split(" ")[0]}
       </h1>

@@ -8,12 +8,6 @@ import { ChartSkeleton, EmptyState, ErrorState, StatCardSkeleton, TableSkeleton 
 import { api, type AdminDashboard, type RouteRevenue } from "@/lib/api";
 import { RequireRole, useAuth } from "@/lib/auth";
 
-const nav = [
-  { label: "Overview", active: true }, { label: "Buses" }, { label: "Drivers" },
-  { label: "Routes" }, { label: "Organizations" }, { label: "Students" },
-  { label: "Payments" }, { label: "Documents" }, { label: "Taxes & EMI" }, { label: "Reports" },
-];
-
 const statusTone: Record<string, string> = {
   Active: "bg-steel/15 text-steel dark:text-mist",
   Maintenance: "bg-slate/15 text-slate",
@@ -44,7 +38,7 @@ function AdminDashboardView() {
   const d = dashboard.data;
 
   return (
-    <Shell role="Super Admin" user={user?.name ?? "SLTC Operations"} nav={nav}>
+    <Shell role="admin" user={user?.name ?? "SLTC Operations"}>
       <h1 className="display text-2xl text-midnight dark:text-fog">Operations overview</h1>
       <p className="mt-1 text-sm text-muted2">Fleet, organizations and collections across SLTC.</p>
 
