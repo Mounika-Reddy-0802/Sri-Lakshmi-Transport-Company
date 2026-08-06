@@ -6,8 +6,14 @@ import { Types } from "mongoose";
 import app from "../app";
 import { connectToDatabase, disconnectFromDatabase } from "../db";
 import { Organization, Student, User } from "../models";
+import {
+  ADMIN_EMAIL,
+  ADMIN_PASSWORD,
+  FIXTURE_PASSWORD,
+  cleanupFixtures,
+  createTenant,
+} from "../testing/fixtures";
 
-const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "Sltc@12345";
 const NEW_PASSWORD = "ZzTestUser@2026";
 
 let adminToken = "";
@@ -42,11 +48,15 @@ beforeAll(async () => {
   orgBId = orgB._id;
   studentBId = studentB._id;
 
-  adminToken = await login("admin@sltc.co.in", SEED_PASSWORD);
-  orgToken = await login("transport@svkm.example.com", SEED_PASSWORD);
+  adminToken = await login(ADMIN_EMAIL, ADMIN_PASSWORD);
+  // An org account to prove /users is closed to non-admins.
+  await cleanupFixtures();
+  const tenant = await createTenant("Users");
+  orgToken = await login(tenant.orgEmail, FIXTURE_PASSWORD);
 });
 
 afterAll(async () => {
+  await cleanupFixtures();
   await Promise.all([
     User.deleteMany({ email: /^zzuser/i }),
     Student.deleteMany({ studentCode: "ZZ-U-B-1" }),

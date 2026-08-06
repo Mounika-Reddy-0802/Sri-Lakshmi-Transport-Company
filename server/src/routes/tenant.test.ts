@@ -14,6 +14,7 @@ import { Types } from "mongoose";
 import app from "../app";
 import { connectToDatabase, disconnectFromDatabase } from "../db";
 import { Invoice, Organization, Student, User } from "../models";
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from "../testing/fixtures";
 
 const PASSWORD = "TenantTest@12345";
 
@@ -107,7 +108,7 @@ beforeAll(async () => {
 
   tokenA = await login("zz.orga@example.com", PASSWORD);
   tokenB = await login("zz.orgb@example.com", PASSWORD);
-  adminToken = await login("admin@sltc.co.in", process.env.SEED_PASSWORD ?? "Sltc@12345");
+  adminToken = await login(ADMIN_EMAIL, ADMIN_PASSWORD);
 });
 
 afterAll(async () => {

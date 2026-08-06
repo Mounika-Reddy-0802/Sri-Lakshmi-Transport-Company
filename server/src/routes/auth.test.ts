@@ -5,11 +5,19 @@ import request from "supertest";
 import app from "../app";
 import { connectToDatabase, disconnectFromDatabase } from "../db";
 import { REFRESH_COOKIE } from "../auth/cookies";
+import {
+  ADMIN_EMAIL,
+  ADMIN_PASSWORD,
+  FIXTURE_PASSWORD,
+  cleanupFixtures,
+  createTenant,
+} from "../testing/fixtures";
 
-const PASSWORD = process.env.SEED_PASSWORD ?? "Sltc@12345";
-const ADMIN = "admin@sltc.co.in";
-const ORG = "transport@svkm.example.com";
-const STUDENT = "parent.aarav@example.com";
+// The seed only creates the administrator now, so the org and parent accounts
+// this suite needs are built as fixtures and removed afterwards.
+const ADMIN = ADMIN_EMAIL;
+let ORG = "";
+let STUDENT = "";
 
 /** Pulls the refresh cookie out of a Set-Cookie header. */
 function refreshCookieFrom(headers: Record<string, unknown>): string {
@@ -20,15 +28,21 @@ function refreshCookieFrom(headers: Record<string, unknown>): string {
   return found.split(";")[0] ?? "";
 }
 
-async function login(email: string, password = PASSWORD) {
-  return request(app).post("/api/auth/login").send({ email, password });
+async function login(email: string, password?: string) {
+  const pw = password ?? (email === ADMIN ? ADMIN_PASSWORD : FIXTURE_PASSWORD);
+  return request(app).post("/api/auth/login").send({ email, password: pw });
 }
 
 beforeAll(async () => {
   await connectToDatabase();
+  await cleanupFixtures();
+  const tenant = await createTenant("Auth");
+  ORG = tenant.orgEmail;
+  STUDENT = tenant.studentEmail;
 });
 
 afterAll(async () => {
+  await cleanupFixtures();
   await disconnectFromDatabase();
 });
 
@@ -74,7 +88,7 @@ describe("POST /api/auth/login", () => {
   });
 
   it("gives an unknown email the identical message (no user enumeration)", async () => {
-    const unknown = await login("nobody@nowhere.example.com");
+    const unknown = await login("nobody@nowhere.example.com", "whatever-password");
     const wrongPassword = await login(ADMIN, "definitely-not-the-password");
 
     expect(unknown.status).toBe(401);
