@@ -2,41 +2,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Building2, GraduationCap, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 import { ApiError } from "@/lib/api";
 import { HOME_FOR_ROLE, useAuth } from "@/lib/auth";
 
-// The seeded demo accounts. These exist only in the development database and
-// are here so the portals can be shown in one click; production seeds its own
-// users and this block is removed with the seed.
-const demoAccounts = [
-  {
-    icon: ShieldCheck,
-    title: "Admin Portal",
-    who: "SLTC Staff",
-    desc: "Full control of fleet, organizations, finance and compliance.",
-    email: "admin@sltc.co.in",
-  },
-  {
-    icon: Building2,
-    title: "Organization Portal",
-    who: "Schools & Corporates",
-    desc: "Your buses, routes, students and billing in one place.",
-    email: "transport@svkm.example.com",
-  },
-  {
-    icon: GraduationCap,
-    title: "Student / Parent Portal",
-    who: "Families",
-    desc: "Route, pickup, driver details and monthly fee payment.",
-    email: "parent.aarav@example.com",
-  },
-];
 
-const DEMO_PASSWORD = "Sltc@12345";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -134,35 +106,6 @@ export default function LoginPage() {
           {pending ? "Signing in…" : "Sign in"}
         </button>
       </form>
-
-      <div className="mx-auto mt-14 max-w-5xl">
-        <p className="text-center text-xs uppercase tracking-[0.18em] text-muted2">
-          Or open a demo account
-        </p>
-
-        <div className="mt-6 grid gap-5 md:grid-cols-3">
-          {demoAccounts.map((account, i) => (
-            <motion.div key={account.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => void signIn(account.email, DEMO_PASSWORD)}
-                className="group block h-full w-full rounded-xl2 border border-line bg-white p-7 text-left transition-all hover:-translate-y-1 hover:border-ink/30 disabled:opacity-60 dark:bg-[#1A1D24]"
-              >
-                <span className="grid h-12 w-12 place-items-center rounded-xl bg-haze text-ink dark:bg-white/10 dark:text-white">
-                  <account.icon size={22} />
-                </span>
-                <div className="mt-5 text-xs uppercase tracking-[0.18em] text-muted2">{account.who}</div>
-                <h2 className="display mt-1 text-xl text-ink dark:text-white">{account.title}</h2>
-                <p className="mt-3 text-sm text-muted2">{account.desc}</p>
-                <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-ink dark:text-white">
-                  Sign in as demo <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
-                </span>
-              </button>
-            </motion.div>
-          ))}
-        </div>
-      </div>
 
       <p className="mx-auto mt-10 max-w-5xl text-center text-xs text-muted2">
         Authentication is real — JWT access tokens with an httpOnly refresh cookie, and every
