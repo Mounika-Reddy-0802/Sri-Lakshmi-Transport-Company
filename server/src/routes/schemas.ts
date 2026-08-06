@@ -8,6 +8,7 @@ import {
   ORGANIZATION_TYPES,
   REMINDER_STATUSES,
   REMINDER_TYPES,
+  ROLES,
 } from "../models";
 import { objectIdSchema, paginationQuery } from "../middleware/validate";
 
@@ -162,6 +163,39 @@ export const reminderUpdate = reminderCreate.partial();
 
 export const reportQuery = z.object({
   months: z.coerce.number().int().min(1).max(24).default(6),
+});
+
+// -------------------------------------------------------------------- users
+
+// Passwords are only ever accepted here; they are hashed in the router and the
+// hash is never selected back out (User.passwordHash has select: false).
+const passwordSchema = z
+  .string()
+  .min(8, "must be at least 8 characters")
+  .max(200, "is too long");
+
+export const userCreate = z.object({
+  name: z.string().trim().min(2).max(120),
+  email: z.string().trim().toLowerCase().email("must be a valid email address"),
+  password: passwordSchema,
+  role: z.enum(ROLES),
+  organizationId: objectIdSchema.optional(),
+  studentId: objectIdSchema.optional(),
+  isActive: z.boolean().optional(),
+});
+
+export const userUpdate = z.object({
+  name: z.string().trim().min(2).max(120).optional(),
+  email: z.string().trim().toLowerCase().email("must be a valid email address").optional(),
+  password: passwordSchema.optional(),
+  role: z.enum(ROLES).optional(),
+  organizationId: objectIdSchema.optional(),
+  studentId: objectIdSchema.optional(),
+  isActive: z.boolean().optional(),
+});
+
+export const userListQuery = listQuery.extend({
+  role: z.enum(ROLES).optional(),
 });
 
 // ----------------------------------------------------------------- payments
