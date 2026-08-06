@@ -151,6 +151,18 @@ export type InvoiceRecord = {
   receiptUrl?: string | null;
 };
 
+export type UserRecord = {
+  _id: string;
+  name: string;
+  email: string;
+  role: "admin" | "org" | "student";
+  organizationId: string | null;
+  organizationName: string | null;
+  studentId: string | null;
+  isActive: boolean;
+  lastLoginAt: string | null;
+};
+
 export type ReminderRecord = {
   _id: string;
   type: string;

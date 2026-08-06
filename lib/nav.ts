@@ -19,6 +19,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { label: "Routes", href: "/admin/routes" },
     { label: "Organizations", href: "/admin/organizations" },
     { label: "Students", href: "/admin/students" },
+    { label: "Users", href: "/admin/users" },
     { label: "Payments", href: "/admin/payments" },
     { label: "Documents", href: "/admin/documents", comingSoon: "Phase 8" },
     { label: "Taxes & EMI", href: "/admin/taxes" },
