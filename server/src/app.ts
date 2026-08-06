@@ -18,6 +18,8 @@ import { portalRouter } from "./routes/portal";
 import { dashboardRouter } from "./routes/dashboard";
 import { reportsRouter } from "./routes/reports";
 import { paymentsRouter } from "./routes/payments";
+import { usersRouter } from "./routes/users";
+import { billingRouter } from "./routes/billing";
 import { resourcesRouter } from "./routes/index";
 
 const stripTrailingSlash = (value: string): string => value.trim().replace(/\/+$/, "");
@@ -71,6 +73,9 @@ export function createApp(): Express {
   app.use("/api", dashboardRouter);
   app.use("/api", reportsRouter);
   app.use("/api", paymentsRouter);
+  app.use("/api", usersRouter);
+  // Before resourcesRouter so /invoices/generate is not read as an id.
+  app.use("/api", billingRouter);
   app.use("/api", resourcesRouter);
 
   app.use(notFoundHandler);
