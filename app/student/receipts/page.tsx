@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Download } from "lucide-react";
 import { PortalShell } from "@/components/dashboard/PortalShell";
@@ -73,15 +74,12 @@ function ReceiptsView() {
                       <td className="py-3 pr-4 text-muted2">₹{inv.amount.toLocaleString("en-IN")}</td>
                       <td className="py-3 pr-4 text-muted2">{inv.date}</td>
                       <td className="py-3 text-right">
-                        {/* A payment record exists, but rendering it as a PDF is
-                            Phase 10 — so this is disabled rather than a dead link. */}
-                        <button
-                          disabled
-                          title="PDF receipts arrive in Phase 10"
-                          className="inline-flex items-center gap-1.5 rounded-full border hairline px-3 py-1.5 text-xs text-muted2 opacity-60"
+                        <Link
+                          href={`/student/receipts/${inv._id}`}
+                          className="inline-flex items-center gap-1.5 rounded-full border hairline px-3 py-1.5 text-xs font-medium text-midnight transition hover:bg-slate/10 dark:text-fog"
                         >
-                          <Download size={13} /> PDF soon
-                        </button>
+                          <Download size={13} /> View receipt
+                        </Link>
                       </td>
                     </tr>
                   ))}
