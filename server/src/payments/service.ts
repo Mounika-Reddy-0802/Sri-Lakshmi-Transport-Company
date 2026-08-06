@@ -37,7 +37,9 @@ export async function markInvoicePaid({
         paidAt: new Date(),
         razorpayOrderId,
         razorpayPaymentId,
-        receiptUrl: `/receipts/${razorpayPaymentId}`,
+        // A path that actually resolves in the frontend, rather than the
+        // dangling /receipts/<paymentId> this used to store.
+        receiptUrl: `/student/receipts/${String(invoiceId)}`,
       },
     },
     { new: true, runValidators: true },
