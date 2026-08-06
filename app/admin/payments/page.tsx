@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { PortalShell } from "@/components/dashboard/PortalShell";
+import { GenerateInvoices } from "@/components/dashboard/GenerateInvoices";
 import { ResourcePage } from "@/components/dashboard/ResourcePage";
 import { StatusPill } from "@/components/dashboard/DataTable";
 import type { Field } from "@/components/dashboard/FormModal";
@@ -24,6 +25,7 @@ export default function AdminPaymentsPage() {
 
 function PaymentsView() {
   const [status, setStatus] = useState("");
+  const [generating, setGenerating] = useState(false);
   const orgs = useOptions<OrganizationRecord>("organizations");
   const students = useOptions<StudentRecord>("students");
 
@@ -57,6 +59,7 @@ function PaymentsView() {
   ];
 
   return (
+    <>
     <ResourcePage<InvoiceRecord>
       resource="invoices"
       title="Payments"
@@ -69,6 +72,14 @@ function PaymentsView() {
       canWrite
       fields={fields}
       filters={{ status: status || undefined }}
+      headerAction={
+        <button
+          onClick={() => setGenerating(true)}
+          className="inline-flex items-center gap-2 rounded-full border hairline px-4 py-2.5 text-sm font-medium text-midnight transition hover:bg-slate/10 dark:text-fog"
+        >
+          Generate monthly invoices
+        </button>
+      }
       toolbar={
         <select
           value={status}
@@ -125,5 +136,7 @@ function PaymentsView() {
         { header: "Status", cell: (i) => <StatusPill value={i.status} /> },
       ]}
     />
+    {generating && <GenerateInvoices onClose={() => setGenerating(false)} />}
+    </>
   );
 }
