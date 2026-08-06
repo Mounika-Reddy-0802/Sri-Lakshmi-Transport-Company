@@ -2,5 +2,5 @@
 // never land in dist/. `npm run typecheck` still checks them.
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "src/testing/**"]
 }
